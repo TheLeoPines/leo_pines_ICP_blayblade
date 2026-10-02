@@ -1,5 +1,3 @@
-#Test push
-#This file was created by: Leo Pines
 #Code inspired by game dev Chris Bradfield who was inspired by Notch
 import pygame as pg #Importing pygame as "pg"
 from os import path
@@ -24,7 +22,7 @@ Output: Graphics - things are drawn, sounds: jump, power up, walking, haptics.
 
 
 '''
-
+#Making the class game that uses all the mechanincs to make it
 class Game:
     #Inputing screen and title that won't disappear when the player starts the program.
     def __init__(self):
@@ -53,19 +51,19 @@ class Game:
         self.all_mobs=pg.sprite.Group()
     
       
-
+#Enumarating from map to titles to make player and walls as a tile.
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
                 if tile=='1':
-                    Wall(self,col,row)
+                    Wall(self,col,row)#For Wall in map
                 if tile=="M":
-                    pass
+                    Mob(self, col, row)#For mob in map
                 # if tile =='P':
                     #Player (self,col,row)
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
                 if tile=='P':
-                    Player(self,col, row)
+                    Player(self,col, row)#For player is map
 
 
                 
@@ -97,11 +95,11 @@ class Game:
         self.screen.fill(BGCOLOR)
         self.all_sprites.draw(self.screen)
         pg.display.flip()
-    # 
+#This runs the game
 if __name__ == "__main__":
     g=Game()
 
-#To start a new game without quitting the program.
+#To run the game without the program quitting.
 while g.running:
      g.new()
      g.run()

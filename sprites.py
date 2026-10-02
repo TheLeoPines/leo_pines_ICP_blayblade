@@ -1,12 +1,13 @@
 import pygame as pg #Importing pygame as "pg"
 from settings import * #Importing from a different made file to access on this file.
 from pygame.sprite import Sprite #Importing the sprite command from pygame as "Sprite"
+from utils import * #Importing from a different made file to access on this file.
 
 from os import path #using windows terminal
 
-vec=pg.math.Vector2
+vec=pg.math.Vector2 #Velocity calculations
 
-#Collision
+#Collision when two objects colide
 def collide_hit_rect(one,two):
      return one.hit_rect.colliderect(two.rect)
 
@@ -45,19 +46,26 @@ def collide_with_walls(sprite,group,dir):
         
     
 
-
+#The Player class to call it in main.py to produce a player sprite
 class Player(Sprite):
-    # Gives the player a sprite and sets the size and color of the sprites.
+    # Gives the player a sprite and sets the size and color of the sprites
     def __init__(self,game,x,y):
         self.groups=game.all_sprites
-        Sprite.__init__(self, self.groups)
+        Sprite.__init__(self, self.groups)#To load sprite when game starts
         self.game=game
+        self.spritesheet=Spritesheet(path.join(self.game.img_dir,"sprite_sheet.png"))
+        self.load_images() #To load images, literally
         self.image=pg.Surface((TILESIZE,TILESIZE))
-        self.image.fill(WHITE)
+        self.image=self.spritesheet.get_image(0,0,TILESIZE,TILESIZE) #Getting the image
+        self.image.set_colorkey(BLACK)
+        # self.image.fill(WHITE)
         self.rect=self.image.get_rect()
         self.hit_rect=PLAYER_HIT_RECT
         self.vel=vec(0,0)
         self.pos=vec(x*TILESIZE,y*TILESIZE)
+         # animation stuff
+        self.last_update = 0
+        self.current_frame = 0
         # self.vx, self.vy=0,0
         # self.x=x*TILESIZE
         # self.y=y*TILESIZE
@@ -93,9 +101,27 @@ class Player(Sprite):
         # if self.vx!=0 and self.vy!=0:
         #     self.vx*=0.7071
         #     self.vy*=0.7071
+
+
+    def animate(self):
+        # use the time element to get now
+        now = pg.time.get_ticks()
+        if now - self.last_update > 350:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.idle_frames) #Updating frames from previous frame
+            bottom = self.rect.bottom
+            self.image = self.idle_frames[self.current_frame]
+            self.rect = self.image.get_rect()
+            self.rect.bottom = bottom
+    #Position of images
+    def load_images(self):
+        self.idle_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE),
+                            self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)
+                            ]
     def update(self):
-        #Outputing the position of the player.
+        #Outputing the position of the player and updating the game
         self.get_keys()
+        self.animate()
         self.rect.center=self.pos
         self.pos+=self.vel*self.game.dt
         self.hit_rect.centerx=self.pos.x
@@ -106,7 +132,7 @@ class Player(Sprite):
         
 
 
-#Inputing a wall
+#Making a class sprite to call in main.py to make the wall.
 class Wall(Sprite):
     def __init__(self,game,x,y):
             self.groups=game.all_sprites, game.all_walls
@@ -123,12 +149,16 @@ class Wall(Sprite):
             print("wall initialized")
             print(self.rect.x)
             print(self.rect.y)
-#inptuing a mob
+#Making a Mob class to input a mob sprite when called in main.py
 class Mob(Sprite):
     def __init__(self,game,x,y):
             self.groups=game.all_sprites, game.all_mobs
             Sprite.__init__(self, self.groups)
             self.game=game
+            self.evilcat=Spritesheet(path.join(self.game.img_dir,"evilcat.png"))
+            self.last_update=0
+            self.current_frame=0
+            self.load_images() #To load images, literally
             self.image=pg.Surface((TILESIZE,TILESIZE))
             self.image.fill(RED)
             self.rect=self.image.get_rect()
@@ -141,17 +171,37 @@ class Mob(Sprite):
             print("mob initialized")
             print(self.rect.x)
             print(self.rect.y)
-            
+    def animate(self):
+        # use the time element to get now
+        now = pg.time.get_ticks()
+        if now - self.last_update > 350:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.idle_frames) #Updating frames from previous frame
+            bottom = self.rect.bottom
+            self.image = self.idle_frames[self.current_frame]
+            self.rect = self.image.get_rect()
+            self.rect.bottom = bottom
+            #Position of images
+    def load_images(self):
+        self.idle_frames = [self.evilcat.get_image(0,0,TILESIZE, TILESIZE),
+                            self.evilcat.get_image(TILESIZE,0,TILESIZE, TILESIZE)
+                            ]
     
+            
+    #Updating velocity
     def update(self):
         #Thanks pygame for the .right
         if self.rect.right>WIDTH or self.rect.x<0:
-             print("Is this a bug>!>!")
              self.speed*=-1
              self.y+=TILESIZE
+        #Animation
         self.x+=self.vx*self.game.dt*self.speed
         self.rect.x=self.x
         self.rect.y=self.y
+        self.animate()
+        
+        #Collisions for mob (SOON)
+        
 
          
     

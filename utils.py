@@ -1,7 +1,8 @@
-import pygame as pg
-from settings import *
+import pygame as pg #Importing pygame as pg
+from settings import *#Importing setttings.py
 from math import floor
 
+#Making a map class to make the map when called in main.py
 class Map:
     def __init__(self,filename):
         self.data=[]
@@ -13,3 +14,15 @@ class Map:
         self.width=self.tilewidth * TILESIZE
         self.height=self.tileheight*TILESIZE
         print('map instantiated')
+#Making a Spritesheet class to convert images to png when called in main.py
+class Spritesheet:
+    #Loading image and converts png to something pygame can use
+    def __init__(self,filename):
+        self.spritesheet=pg.image.load(filename).convert()
+
+    def get_image(self,x,y,width,height):
+        image=pg.Surface((width,height))
+        image.blit(self.spritesheet,(0,0),(x,y,width,height))
+        new_image=pg.transform.scale(image, (width,height))
+        image=new_image
+        return image
